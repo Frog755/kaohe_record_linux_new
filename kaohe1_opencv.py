@@ -97,4 +97,4 @@ print(right_contour)
 cv_show("img", draw_img)
 
 
-cv2.imwrite("new.png", draw_img)
+cv2.imwrite("new_opencv.png", draw_img)

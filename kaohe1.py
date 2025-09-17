@@ -11,13 +11,15 @@ def find_right_point(y, binary_otsu, img):
 
 def find_left_point(y, binary_otsu, img):
     h, w = img.shape[: 2]
-    for x in range(w // 2, -1, -1):
+    for x in range(w // 2, 0, -1):
         if (binary_otsu[y, x - 1] == 0) and (binary_otsu[y, x] == 255) and (binary_otsu[y, x + 1] == 255):
             img[y, x] = [0, 0, 255]
             return x
 
 
 def main():
+
+
     #1.图片预处理
     img = cv2.imread("test.png")
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -39,6 +41,8 @@ def main():
     cv2.imshow("img", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    cv2.imwrite("new1.png", img)
 
 if __name__ == '__main__':
     main()
