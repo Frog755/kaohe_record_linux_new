@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+import time
+
+start = time.time()
 
 def cv_show(name, img):
     cv2.imshow(name, img)
@@ -88,11 +91,16 @@ cv2.line(draw_img, (137, 40), (105, 43), (255, 0, 255), 1)
 cv2.line(draw_img, (105, 43), (102, 47), (255, 0, 255), 1)
 cv2.line(draw_img, (97, 109), (97, 120), (255, 0, 255), 1)
 
+end = time.time()
+execution_time = end - start
+
+
 print(mid_points)
 print("------------------------------------------------------------------------------------------")
 print(left_contour)
 print("------------------------------------------------------------------------------------------")
 print(right_contour)
+print(f"代码执行时间: {execution_time:.4f} 秒")
 #cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 cv_show("img", draw_img)
 

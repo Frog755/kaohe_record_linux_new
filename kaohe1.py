@@ -1,5 +1,5 @@
 import cv2
-import numpy as np
+import time
 
 def find_left_point(y, binary_otsu, img, start, end):
     h, w = img.shape[: 2]
@@ -22,6 +22,7 @@ def find_right_point(y, binary_otsu, img, start, end):
 
 
 def main():
+    start_time = time.time()
 
     #1.图片预处理
     img = cv2.imread("test.png")
@@ -40,7 +41,9 @@ def main():
             mid_x = (left_x + right_x) // 2
             img[y, mid_x] = [255, 0, 255]
 
-
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"代码运行时间：{execution_time:.4f} 秒")
 
     #3.显示图像
     cv2.imshow("otsu", binary_otsu)
