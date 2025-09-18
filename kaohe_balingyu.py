@@ -69,8 +69,8 @@ def main():
     mid = []
 
     # 2.扫线
-    #(1)
-    for y in range(h - 12, h//2, -1):
+    #(1)找到初始生长线
+    for y in range(h - 12, h//2, -1):#限制范围
         left_x = find_left_point(y, binary_otsu, img)
         right_x = find_right_point(y, binary_otsu, img)
         if left_x != 0 and right_x != 0:
@@ -79,18 +79,8 @@ def main():
             mid.append([y, (left_x + right_x) // 2])
             img[y, (left_x + right_x) // 2] = [255, 0, 255]
 
-    #(2)
-    for y in range(h//2, 45, -1):
-        y, left_x = find_born_left(y, left_x, binary_otsu)
-        y, right_x = find_born_right(y, right_x, binary_otsu)
-        img[y, left_x] = [0, 0, 255]
-        img[y, right_x] = [0, 255, 0]
-        left.append([y, left_x])
-        right.append([y, right_x])
-        mid.append([y, (left_x + right_x) // 2])
-        img[y, (left_x + right_x) // 2] = [255, 0, 255]
-    #(3)
-    for i in range(0, 40, 1):
+    #(2)往上延伸
+    for y in range(h//2, 45, -1):#限制范围
         y, left_x = find_born_left(y, left_x, binary_otsu)
         y, right_x = find_born_right(y, right_x, binary_otsu)
         img[y, left_x] = [0, 0, 255]
@@ -100,12 +90,23 @@ def main():
         mid.append([y, (left_x + right_x) // 2])
         img[y, (left_x + right_x) // 2] = [255, 0, 255]
 
+    #(3)延伸
+    for i in range(0, 40, 1):#限制范围
+        y, left_x = find_born_left(y, left_x, binary_otsu)
+        y, right_x = find_born_right(y, right_x, binary_otsu)
+        img[y, left_x] = [0, 0, 255]
+        img[y, right_x] = [0, 255, 0]
+        left.append([y, left_x])
+        right.append([y, right_x])
+        mid.append([y, (left_x + right_x) // 2])
+        img[y, (left_x + right_x) // 2] = [255, 0, 255]
+
+    #3.打印坐标
     print(left)
     print(right)
     print(mid)
 
-
-    #3.显示图像
+    #4.显示图像
     cv2.imshow("otsu", binary_otsu)
     cv2.imshow("img", img)
     cv2.waitKey(0)
