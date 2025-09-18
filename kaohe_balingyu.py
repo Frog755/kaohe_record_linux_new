@@ -1,6 +1,9 @@
 import cv2
 import time
 
+from numpy.ma.core import right_shift
+
+
 def find_left_point(y, binary_otsu, img):
     h, w = img.shape[: 2]
     for x in range(1, w - 2, +1):
@@ -20,7 +23,7 @@ def find_right_point(y, binary_otsu, img):
     return 0
 
 
-def find_born_left(y, left, binary_otsu):
+def find_born_left(y, left,py, px, binary_otsu):
     # 定义八邻域的偏移量 (dy, dx)
     neighbors = [
         (1, 1),  # 右下
@@ -44,39 +47,64 @@ def find_born_left(y, left, binary_otsu):
     return y, left
 
 
-def find_born_right(y, right, binary_otsu):
+def find_born_right(y, right,py, px, binary_otsu):
     # 定义八邻域的偏移量 (dy, dx)
     neighbors = [
-        # (1, -1),  # 左下
+        (1, -1),  # 左下
         (0, -1),  # 左
         (-1, -1),  # 左上
         (-1, 0),  # 上
         (-1, 1),  # 右上
         (0, 1),  # 右
-        (1, 1)  # 右下
+        (1, 1),  # 右下
+        (1, 0)  # 下
     ]
+    neighbors_n = [
+        (-1, -1),  # 左上
+        (-1, 0),  # 上
+        (-1, 1),  # 右上
+        (0, 1),  # 右
+        (1, 1),  # 右下
+        (1, 0), # 下
+        (1, -1),  # 左下
+        (0, -1),  # 左
 
-    # 按顺序检查每个邻域点
-    for dy, dx in neighbors:
-        ny, nx = y + dy, right + dx
-        # 检查边界
-        if 0 <= ny < binary_otsu.shape[0] and 0 <= nx < binary_otsu.shape[1]:
-            if binary_otsu[ny, nx] == 0:
-                return ny, nx
+    ]
+    if py == y and px == right:
+        # 按顺序检查每个邻域点
+        for dy, dx in neighbors_n:
+            ny, nx = y + dy, right + dx
+            # 检查边界
+            if 0 <= ny < binary_otsu.shape[0] and 0 <= nx < binary_otsu.shape[1]:
+                if binary_otsu[ny, nx] == 0:
+                    return ny, nx
 
-    # 如果没有找到合适的点，返回原始位置
-    return y, right
+        # 如果没有找到合适的点，返回原始位置
+        return y, right
+    else:
+        # 按顺序检查每个邻域点
+        for dy, dx in neighbors:
+            ny, nx = y + dy, right + dx
+            # 检查边界
+            if 0 <= ny < binary_otsu.shape[0] and 0 <= nx < binary_otsu.shape[1]:
+                if binary_otsu[ny, nx] == 0:
+                    return ny, nx
+
+        # 如果没有找到合适的点，返回原始位置
+        return y, right
+
 
 
 def main():
     start = time.time()
-    
+
     #1.图片预处理
     img = cv2.imread("test.png")
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     ret1, binary_otsu = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)#大津阈值算法
     h, w = img.shape[: 2]
+
 
     left = []
     right = []
@@ -93,13 +121,15 @@ def main():
             mid.append([y, (left_x + right_x) // 2])
             img[y, (left_x + right_x) // 2] = [255, 0, 255]
 
-    # (3)延伸
+    # (2)延伸
     left_y = h // 2
     right_y = h // 2
 
-    for _ in range(100):  # 限制步数
-        left_y, left_x = find_born_left(left_y, left_x, binary_otsu)
-        right_y, right_x = find_born_right(right_y, right_x, binary_otsu)
+    for _ in range(90):  # 限制步数
+        p_left_y, p_left_x = left_y, left_x
+        left_y, left_x = find_born_left(left_y, left_x, p_left_y, p_left_x, binary_otsu)
+        p_right_y, p_right_x = right_y, right_x
+        right_y, right_x = find_born_right(right_y, right_x, p_right_y, p_right_x,  binary_otsu)
 
         img[left_y, left_x] = [0, 0, 255]
         img[right_y, right_x] = [0, 255, 0]
